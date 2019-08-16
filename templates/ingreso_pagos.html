@@ -31,21 +31,28 @@
     </select>
   </div>
 
-
-<div class="form-group">
-<label for="exampleFormControlSelect1">Comienza Trabajo</label>
-<input type="date" class="form-control" id="inicioT" name="inicioT"> 
-</div>
-
-<div class="form-group">
-    <label for="exampleFormControlSelect1">Finaliza Trabajo</label>
-    <input type="date" class="form-control" id="finT" name="finT">
-</div>
-
+  <div class="form-group">
+    <label>Forma de pago</label>
+    <select name="tipo" class="form-control" value={{request.form.username}}>
+      <option value="Efectivo">Efectivo</option>
+      <option value="Cheque">Cheque</option>
+      <option value="Deposito">Deposito</option>
+    </select>
+  </div>
+  <div class="form-group">
+      <label>Fecha Pago</label>
+      <input type="date" name="fecha" class="form-control" value={{request.form.username}}>
+  </div>
   <div class="form-group">
       <label>Monto</label>
       <input type="text" name="monto" class="form-control" value={{request.form.username}}>
   </div>
+  <div class="form-group">
+      <label>Descripcion</label>
+      <textarea name="descripcion" class="form-control" value={{request.form.username}}>
+      </textarea>
+    </div>
+  
     <button type="submit" class="btn btn-primary">Submit</button>
   </form>
 {% endblock %}

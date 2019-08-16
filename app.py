@@ -79,18 +79,19 @@ def ingresoclientes():
 @app.route("/nuevoPago",methods=['POST'])
 def nuevoPago(): 
     identificador = request.form['id']
-    fechaInicio = request.form['inicioT']
-    fechaFin = request.form['finT']
+    tipo = request.form['tipo']
     monto = request.form['monto']
-    hoy = datetime.datetime.now()
-    hoystr = str(hoy.strftime("%Y-%m-%d"))
-    sql = "INSERT INTO  pago (idCliente,inicioTrabajo,finTrabajo,fechaPago,monto) VALUES(%i,'%s','%s','%s',%f)" % (int(identificador),fechaInicio,fechaFin,hoystr,float(monto))
+    descripcion = request.form['descripcion']
+    fecha = request.form['fecha']
+    #hoy = datetime.datetime.now()
+    #hoystr = str(hoy.strftime("%Y-%m-%d"))
+    sql = "INSERT INTO  pago (idCliente,fechaPago,monto,descripcion,tipo) VALUES(%i,'%s',%f,'%s','%s')" % (int(identificador),fecha,float(monto),descripcion,tipo)
     run_query(sql)
     return  redirect(url_for('ingreso_pagos'))
 
 @app.route("/getPagos",methods=['POST'])
 def getPagos():
-    sql = "SELECT NIT,NOMBRE,inicioTrabajo,finTrabajo,fechaPago,pago.monto FROM cliente , pago WHERE cliente.idCliente = pago.idCliente"
+    sql = "SELECT NIT,NOMBRE,fechaPago,pago.monto FROM cliente , pago WHERE cliente.idCliente = pago.idCliente"
     data = run_query(sql)
     clientes = [] 
     for cl in data: 
