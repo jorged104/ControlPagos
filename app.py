@@ -38,6 +38,11 @@ def clientes():
 def ingreso_pagos():
     return render_template("ingreso_pagos.html")
 
+@app.route("/ingreso_Cobros")
+def ingreso_cobros():
+    return render_template("ingreso_cobros.html")    
+
+
 @app.route("/consulta_pagos")
 def consulta_pagos():
     return render_template("consulta_pagos.html")
@@ -89,6 +94,16 @@ def nuevoPago():
     run_query(sql)
     return  redirect(url_for('ingreso_pagos'))
 
+@app.route("/nuevoCobro",methods=['POST'])
+def nuevoCobro(): 
+    identificador = request.form['id']
+    monto = request.form['monto']
+    descripcion = request.form['descripcion']
+    fecha = request.form['fecha']
+    sql = "INSERT INTO  cobros (idusuario,fechaCobro,monto,descripcion) VALUES(%i,'%s',%f,'%s')" % (int(identificador),fecha,float(monto),descripcion)
+    run_query(sql)
+    return  redirect(url_for('ingreso_cobros'))
+
 @app.route("/getPagos",methods=['POST'])
 def getPagos():
     sql = "SELECT NIT,NOMBRE,fechaPago,pago.monto FROM cliente , pago WHERE cliente.idCliente = pago.idCliente"
@@ -112,6 +127,18 @@ def consultaPagos():
     print(clientes)    
     return json.dumps(clientes)  
 
+
+@app.route("/getCobros",methods=['POST'])
+def getCobros():
+    sql = "SELECT  fechaCobro,monto,descripcion FROM cobros  WHERE idusuario == '%i' " % (request.form['id'])
+    data = run_query(sql)
+    clientes = [] 
+    for cl in data: 
+        cliente = { 'fecha' : cl[0] , 'monto' : str(cl[1]) , 'descripcion' : cl[2] }
+        clientes.append(cliente) 
+
+    print(clientes)    
+    return json.dumps(clientes)      
 if __name__ == "__main__":
     app.run(debug=True)
 
