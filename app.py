@@ -66,7 +66,12 @@ def ingresoclientes():
     nit = request.form['nit']
     usuario = request.form['username']
     monto = request.form['monto']
-    sql = "INSERT INTO cliente (NIT,NOMBRE,MONTO) VALUES(%i,'%s',%f)" % (int(nit),usuario,float(monto))
+    direccion = request.form['direccion']
+    telefono = request.form['telefono']
+    email = request.form['email']
+    regimen = request.form['regimen']
+    saldo = request.form['saldo']
+    sql = "INSERT INTO cliente (NIT,NOMBRE,MENSUAL,DIRECCION,TELEFONO,EMAIL,REGIMEN,SALDO) VALUES(%i,'%s',%f,'%s','%s','%s','%s',%f)" % (int(nit),usuario,float(monto),direccion,telefono,email,regimen,float(saldo))
     run_query(sql)
     return  redirect(url_for('clientes'))
 
