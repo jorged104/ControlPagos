@@ -6,27 +6,48 @@ import datetime
 
 
 def run_query(query=''):
-    mydb = mysql.connector.connect(
-    host="localhost",
-    user="root",
-    passwd="",
-    database="controlPagos"
-    )
+    try:
+        mydb = mysql.connector.connect(
+        host="localhost",
+        user="root",
+        passwd="",
+        database="controlPagos"
+        )
 
-    mycursor = mydb.cursor()
+        mycursor = mydb.cursor()
 
-    mycursor.execute(query)
-    
-    if query.upper().startswith('SELECT'): 
-        data = mycursor.fetchall() 
-    else: 
-        mydb.commit()               
-        data = None 
+        mycursor.execute(query)
+        
+        if query.upper().startswith('SELECT'): 
+            data = mycursor.fetchall() 
+        else: 
+            mydb.commit()               
+            data = None 
 
-    mycursor.close()    
-    mydb.close()
-    return data
+        mycursor.close()    
+        mydb.close()
+        return data
+    except expression as identifier: 
+        print("Error en DB")
+    return None    
 
+
+def run_proc(name='', tupla = () ):
+    try:
+        mydb = mysql.connector.connect(
+        host="localhost",
+        user="root",
+        passwd="",
+        database="controlPagos"
+        )
+        mycursor = mydb.cursor()
+        mycursor.callproc(name,tupla)
+
+        data = mycursor.stored_results()  
+        return data       
+    except expression as identifier:
+        print("Error en DB")
+    return None    
 
 app = Flask(__name__)
 
@@ -88,10 +109,9 @@ def nuevoPago():
     monto = request.form['monto']
     descripcion = request.form['descripcion']
     fecha = request.form['fecha']
-    #hoy = datetime.datetime.now()
-    #hoystr = str(hoy.strftime("%Y-%m-%d"))
     sql = "INSERT INTO  pago (idCliente,fechaPago,monto,descripcion,tipo) VALUES(%i,'%s',%f,'%s','%s')" % (int(identificador),fecha,float(monto),descripcion,tipo)
     run_query(sql)
+    run_proc("ingreso_pago" , ( int(identificador) , float(monto) ) )
     return  redirect(url_for('ingreso_pagos'))
 
 @app.route("/nuevoCobro",methods=['POST'])
@@ -102,15 +122,16 @@ def nuevoCobro():
     fecha = request.form['fecha']
     sql = "INSERT INTO  cobros (idusuario,fechaCobro,monto,descripcion) VALUES(%i,'%s',%f,'%s')" % (int(identificador),fecha,float(monto),descripcion)
     run_query(sql)
+    run_proc("ingreso_cobro" , ( int(identificador) , float(monto) ) )
     return  redirect(url_for('ingreso_cobros'))
 
 @app.route("/getPagos",methods=['POST'])
 def getPagos():
-    sql = "SELECT NIT,NOMBRE,fechaPago,pago.monto FROM cliente , pago WHERE cliente.idCliente = pago.idCliente"
+    sql = "SELECT NIT,NOMBRE,fechaPago,pago.monto,descripcion FROM cliente , pago WHERE cliente.idCliente = pago.idCliente ORDER BY pago.idPago DESC LIMIT 50 "
     data = run_query(sql)
     clientes = [] 
     for cl in data: 
-        cliente = { 'nit' : cl[0] , 'nombre' : cl[1] , 'fechaInicio': str(cl[2]),'fin': str(cl[3]) ,'fechaPago': str(cl[4]) , 'monto': str(cl[5]) }
+        cliente = { 'nit' : cl[0] , 'nombre' : cl[1] , 'fechaPago': str(cl[2]),'monto': str(cl[3]) , 'descripcion': str(cl[4]) }
         clientes.append(cliente) 
     return json.dumps(clientes)       
 

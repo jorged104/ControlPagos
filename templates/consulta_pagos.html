@@ -10,7 +10,7 @@ $(document).ready(() => {
         var res = JSON.parse(response)
         var table = "" ; 
         res.forEach(element => {
-           table += `<tr><td>${element.nit}</td><td>${element.nombre}</td><td>${element.fechaInicio}</td><td>${element.fin}</td><td>${element.fechaPago}</td><td>${element.monto}</td></tr>`
+           table += `<tr><td>${element.nit}</td><td>${element.nombre}</td><td>${element.descripcion}</td><td>${element.fechaPago}</td><td>${element.monto}</td></tr>`
         });
         $("#tablaCuerpo").html(table);
       },
@@ -26,8 +26,7 @@ $(document).ready(() => {
     <tr>
       <th>NIT</th>
       <th>NOMBRE</th>
-      <th>Fecha Inicio</th>
-      <th>Fecha Fin</th>
+      <th>DESCRIPCION</th>
       <th>Fecha Pago</th>
       <th>MONTO</th>
     </tr>
