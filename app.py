@@ -21,8 +21,11 @@ def run_query(query=''):
         if query.upper().startswith('SELECT'): 
             data = mycursor.fetchall() 
         else: 
-            mydb.commit()               
-            data = None 
+            mydb.commit()
+            data = None
+            if  query.upper().startswith('INSERT'):
+                data = mycursor.lastrowid            
+              
 
         mycursor.close()    
         mydb.close()
@@ -72,6 +75,10 @@ def consulta_pagos():
 def consulta_pagos_i2():
     return render_template("consulta_pagos_i2.html")
 
+@app.route("/consulta_cliente")
+def consulta_cliente():
+    return render_template("consulta_cliente.html")
+
 @app.route("/")
 def home():
     return render_template("home.html")
@@ -109,9 +116,15 @@ def nuevoPago():
     monto = request.form['monto']
     descripcion = request.form['descripcion']
     fecha = request.form['fecha']
-    sql = "INSERT INTO  pago (idCliente,fechaPago,monto,descripcion,tipo) VALUES(%i,'%s',%f,'%s','%s')" % (int(identificador),fecha,float(monto),descripcion,tipo)
-    run_query(sql)
+    cobros = request.form['cobros']
+
+    sql = "INSERT INTO  pago (idCliente,fechaPago,monto,descripcion,tipo) VALUES(%i,'%s',%f,'%s','%s')" % (int(identificador),fecha,float(monto),descripcion,tipo)   
+    respuesta = run_query(sql)
     run_proc("ingreso_pago" , ( int(identificador) , float(monto) ) )
+    if (cobros != '' ):
+        listacobros = cobros.split(",")  
+        for c in listacobros:
+            run_proc("setCobro", ( int(c) , int(respuesta) ) )
     return  redirect(url_for('ingreso_pagos'))
 
 @app.route("/nuevoCobro",methods=['POST'])
@@ -159,7 +172,21 @@ def getCobros():
         clientes.append(cliente) 
 
     print(clientes)    
+    return json.dumps(clientes) 
+
+@app.route("/getcobrospendientes",methods=['POST'])
+def getcobrospendientes():
+    sql = "SELECT  idcobro,descripcion , monto , fechaCobro  FROM cobros  WHERE idusuario = %i AND idpago IS NULL   " % (int(request.form['id']))
+    print(sql)
+    data = run_query(sql)
+    clientes = [] 
+    for cl in data: 
+        cliente = { 'id' : cl[0] ,'desc': str(cl[1]) ,'monto' : str(cl[2]) , 'fecha' : str(cl[3]) }
+        clientes.append(cliente) 
+    #print(clientes)    
     return json.dumps(clientes)      
+
+
 if __name__ == "__main__":
     app.run(debug=True)
 
