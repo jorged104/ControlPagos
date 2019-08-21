@@ -174,10 +174,34 @@ def getCobros():
     print(clientes)    
     return json.dumps(clientes) 
 
+#return json.dumps({'status':'OK','clientes':json.dumps(clientes)})
+@app.route("/getClientesConsulta",methods=['POST'])
+def getClientesConsulta():
+    idcliente = request.form['id']
+    # SELECCION DE DATOS DEL CLIENTE 
+    sql = "SELECT  `NIT`, `NOMBRE`, `MENSUAL`, `DIRECCION`, `TELEFONO`, `EMAIL`, `REGIMEN`, `SALDO` FROM `cliente` WHERE idCliente = %i "  % (int(idcliente))
+    data = run_query(sql)
+    datos = { 'nit' : str(data[0][0]) , 'nombre' : str(data[0][1]) ,'mensual' : str(data[0][2]) , 'direccion' : str(data[0][3]) , 'telefono' : str(data[0][4]) , 'email'  : str(data[0][5]) , 'regimen'  : str(data[0][6]), 'saldo'  : str(data[0][7]) }
+    # SLECCION DE  COBROS PENDIENTES 
+    sql = "SELECT  idcobro,descripcion , monto , fechaCobro  FROM cobros  WHERE idusuario = %i AND idpago IS NULL   " % (int(idcliente))
+    data = run_query(sql)
+    cobros = [] 
+    for cl in data: 
+        cobro = { 'id' : cl[0] ,'desc': str(cl[1]) ,'monto' : str(cl[2]) , 'fecha' : str(cl[3]) }
+        cobros.append(cobro) 
+    # SLECCION DE LOS ULTIMOS 50 PAGOS
+    sql = "SELECT fechaPago, monto , descripcion , tipo FROM  pago WHERE idPago = %i ORDER BY idPago DESC LIMIT 50 " % (int(idcliente))
+    data = run_query(sql)
+    pagos = [] 
+    for cl in data: 
+        pago = {  'fechaPago': str(cl[0]),'monto': str(cl[1]) , 'descripcion': str(cl[2]) , 'tipo': str(cl[3]) }
+        pagos.append(pago) 
+
+    return json.dumps({'datos': json.dumps(datos)  ,'cobros':json.dumps(cobros) , 'pagos' : json.dumps(pagos) } )
+
 @app.route("/getcobrospendientes",methods=['POST'])
 def getcobrospendientes():
     sql = "SELECT  idcobro,descripcion , monto , fechaCobro  FROM cobros  WHERE idusuario = %i AND idpago IS NULL   " % (int(request.form['id']))
-    print(sql)
     data = run_query(sql)
     clientes = [] 
     for cl in data: 
