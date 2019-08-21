@@ -2,6 +2,7 @@
 
 {% block body %}
 <script >
+  var idcobros = [];
   $(document).ready(()=>{
     $.ajax({
       url: '/getClientes',
@@ -9,7 +10,7 @@
       success : function(response){
         var res = JSON.parse(response)
         var clientes = JSON.parse(res.clientes);
-        var nit  = "";
+        var nit  = `<option value="0">Seleccione</option>`;
         clientes.forEach(element => {
           nit += `<option value="${element.id}">${element.nit} -> ${element.nombre} </option>`
         });
@@ -19,7 +20,42 @@
         console.log(error);
       }
     });
+
+    $( "#id" ) .change(function () {    
+      $.ajax({
+      url: '/getcobrospendientes',
+      type: 'POST',
+      data:  { id : $("#id").val() },
+
+      success : function(response){
+        var res = JSON.parse(response)
+        var tablaAgregar  = ``;
+        var cont = 0;
+        res.forEach(element => {
+          tablaAgregar += `<tr><td>${element.desc}</td><td>${element.monto}</td><td>${element.fecha}</td><td><Button  type="button" id="bt${cont}" class="btn btn-primary " onclick='agregarcobro(${element.id},this.id)'>Cobrar</button></td></tr>`
+            cont = cont + 1 ;
+          });
+        $('#tablaCuerpo').html(tablaAgregar)
+      },
+      error: function(error){
+        console.log(error);
+      }
+    });
+
+    }); 
+      $(".addcobro").click(function(){
+   
+      $(this).attr('class').replace('btn-primary addcobro ', '');
+        alert('hola mundo GG')
+    });
+
   });
+  function agregarcobro(id , boton )
+    {
+      $("#"+boton).attr("disabled", true);
+      idcobros.push(id);
+      $("#listaCobro").val(idcobros);
+    }
 </script>
 
   <h1>Login</h1>
@@ -31,21 +67,37 @@
     </select>
   </div>
 
-
-<div class="form-group">
-<label for="exampleFormControlSelect1">Comienza Trabajo</label>
-<input type="date" class="form-control" id="inicioT" name="inicioT"> 
-</div>
-
-<div class="form-group">
-    <label for="exampleFormControlSelect1">Finaliza Trabajo</label>
-    <input type="date" class="form-control" id="finT" name="finT">
-</div>
-
+  <div class="form-group">
+    <label>Forma de pago</label>
+    <select name="tipo" class="form-control" value={{request.form.username}}>
+      <option value="Efectivo">Efectivo</option>
+      <option value="Cheque">Cheque</option>
+      <option value="Deposito">Deposito</option>
+    </select>
+  </div>
+  <div class="form-group">
+      <label>Fecha Pago</label>
+      <input type="date" name="fecha" class="form-control" value={{request.form.username}}>
+  </div>
   <div class="form-group">
       <label>Monto</label>
       <input type="text" name="monto" class="form-control" value={{request.form.username}}>
   </div>
+  <div class="form-group">
+      <label>Descripcion</label>
+      <textarea name="descripcion" class="form-control" value={{request.form.username}}>
+      </textarea>
+    </div>
+  <div class="form-group">
+      <label>Seleccione  Cobros</label>
+      <table  id="tablaCobros" class="table">
+        <tr><th>Descripcion</th> <th>Monto</th><th>Fecha Cobro</th><th>Cobrar</th></tr>
+        <tbody id="tablaCuerpo">
+          
+        </tbody>
+      </table>
+    </div>
+    <input type="hidden" name="cobros" class="form-control" id="listaCobro" value="">
     <button type="submit" class="btn btn-primary">Submit</button>
   </form>
 {% endblock %}

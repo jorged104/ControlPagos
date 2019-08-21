@@ -9,7 +9,7 @@ def run_query(query=''):
         )
  
     cursor = mydb.cursor()         
-    cursor.execute(query)          
+    cursor.execute(query, multi=True)          
  
     #if query.upper().startswith('SELECT'): 
     #    data = cursor.fetchall()   
