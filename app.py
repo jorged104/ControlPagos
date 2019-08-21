@@ -2,18 +2,24 @@ from flask import Flask, render_template,  redirect, url_for, escape, request
 import mysql.connector
 import json
 import datetime
+import sys
 #import conn
+
+path = '/home/jorged104/control/'
+if path not in sys.path:
+   sys.path.insert(0, path)
+import os
+THIS_FOLDER = os.path.dirname(os.path.abspath(__file__))
 
 
 def run_query(query=''):
     try:
         mydb = mysql.connector.connect(
-        host="localhost",
-        user="root",
-        passwd="",
-        database="controlPagos"
+        host="jorged104.mysql.pythonanywhere-services.com",
+        user="jorged104",
+        passwd="practicas123858",
+        database="jorged104$controlpagos"
         )
-
         mycursor = mydb.cursor()
 
         mycursor.execute(query)
@@ -38,10 +44,10 @@ def run_query(query=''):
 def run_proc(name='', tupla = () ):
     try:
         mydb = mysql.connector.connect(
-        host="localhost",
-        user="root",
-        passwd="",
-        database="controlPagos"
+        host="jorged104.mysql.pythonanywhere-services.com",
+        user="jorged104",
+        passwd="practicas123858",
+        database="jorged104$controlpagos"
         )
         mycursor = mydb.cursor()
         mycursor.callproc(name,tupla)
@@ -210,8 +216,7 @@ def getcobrospendientes():
     #print(clientes)    
     return json.dumps(clientes)      
 
-
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=False)
 
 
